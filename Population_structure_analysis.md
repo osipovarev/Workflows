@@ -78,7 +78,7 @@ plink --bfile $PREFIX \
 ### 2.A. PCA from PLINK (Potentially Problematic)
 
 ```bash
-plink --bfile turtles_ld_pruned \
+plink --bfile $PREFIX \
       --allow-extra-chr \
       --chr-set 95 no-xy \
       --threads 32 \
@@ -91,7 +91,7 @@ plink --bfile turtles_ld_pruned \
 ### 2.B. PCA from Distance Matrix
 
 ```bash
-plink --bfile turtles_ld_pruned \
+plink --bfile $PREFIX \
       --allow-extra-chr \
       --chr-set 95 no-xy \
       --threads 32 \
