@@ -1,30 +1,30 @@
 # Genetic Load Analysis Workflow
 
+---
+### Some useful resources
+- Great review on genetic load
+Dussex et al, 2023: [Purging and accumulation of genetic load in conservation](https://doi.org/10.1016/j.tree.2023.05.008)
+- Review: defentitions and how to look for genetic load
+Bertorelle et al, 2022: [Genetic load: genomic estimates and applications in non-model animals](https://www.nature.com/articles/s41576-022-00448-x)
+
+
 This workflow outlines the general steps to perform genetic load analysis. 
 There are several ways to identify variant effect on fitness. Conceptually, they can be devided into two main classes: 
-1) based on gene annotationl and
-2) based on conservation.
-The examples of **Class 1** tools include  **snpEff** and **ANNOVAR**.
+1) based on gene annotation;
+2) based on conservation.\
+The examples of **Class 1** tools include  **snpEff** and **ANNOVAR**.\
 An example of **Class 2** tool is **GERP**.
 
 Below I describe how to use all three tools to annotate variant effect.
 
----
 
-## 1. Input Preparation
-
-### Step 1.1: Prepare Required Data
-- **Genome Reference**: Obtain the genome sequence (FASTA) and annotation file (GTF).
-- **Variants**: Ensure your variant data is in VCF format.
-
-### Step 1.2: Organize Working Directory
-Structure your working directory for the tools:
-- A folder for the genome and annotation files.
-- Subdirectories for outputs from snpEff, ANNOVAR, and GERP.
 
 ---
 
 ## 1. Variant Annotation with snpEff
+
+- snpEff output annotations explained:
+[table describing types of variants](https://pcingola.github.io/SnpEff/snpeff/inputoutput/#eff-field-vcf-output-files)
 
 
 ### 1.1. Prepare input: VCF, genome, annotation
@@ -82,6 +82,15 @@ paste <(grep -v -w LOF all_samples.hom_het_by_impact.tsv ) <(cut -f4 snpEff_comb
 
 
 ## 2. Annotate Variants with ANNOVAR
+
+Publicaiton:
+[ANNOVAR: functional annotation of genetic variants from high-throughput sequencing data](https://pmc.ncbi.nlm.nih.gov/articles/PMC2938201/)
+
+- link to [download ANNOVAR](http://www.openbioinformatics.org/annovar/download/0wgxR2rIVP/annovar.latest.tar.gz)
+
+- [Code](http://www.openbioinformatics.org/annovar/)
+
+- [tutorial for non-human species](https://annovar.openbioinformatics.org/en/latest/user-guide/gene/#create-your-own-gene-definition-databases-for-non-human-species)
 
 
 ### 2.1. Prepare input: genome, annotation, VCF
@@ -151,12 +160,23 @@ bash count_var_by_impact.sh
 
 
 
-
+---
 
 ## 3. Genetic Constraint Scoring with GERP
 
-GERP uses conservation to annotate variant effect: higher conservation of a genomic position means higher impact of a variant in that position.
+GERP = Genomic Evolutionary Rate Profiling
+Publication: Davydov, ... Sidow, 2010: [Identifying a High Fraction of the Human Genome to be under Selective Constraint Using GERP++](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1001025)
 
+### Main idea:
+if a site is under purifying selection, it will be conserved across large evolutionary distances.
+We can use GERP conservation scores to annotate variant effect: higher conservation of a genomic position means higher impact of a variant in that position.
+
+### What is GERP score?
+The GERP score is defined as the reduction in the number of substitutions in the multi-species sequence alignment compared to the neutral expectation.
+For example, a GERP score of 4 would mean there are 4 fewer substitutions at a particular site than what is expected based on the neutral rate of evolution across the phylogeny.
+
+
+### Input required for GERP
 To identify conserved position, GERP needs a multiple sequence alignment across species with large evoltuionary distance. This recipe does not describe how to make this alignemnt.
 
 To install gerp, run
@@ -228,3 +248,24 @@ bedtools merge -i <(cat coding.*.maf.rates.bed | awk '$4>=1{print }' | sort -k1,
 bedtools merge -i <(cat noncoding.*.maf.rates.bed | awk '$4>=1{print }' | sort -k1,1 -k2,2n) > ../noncoding.derCor.gerp_1.0.bed
 ```
 
+
+---
+
+****
+## Other methods to predict consequence of sequence variation
+
+**Methods that rely on conservation only:**
+- SIFT (https://academic.oup.com/nar/article/31/13/3812/2904131) (requires MSA!)
+- PROVEAN (https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0046688)
+- EVmutation (https://www.nature.com/articles/nbt.3769)
+- phyloP (https://academic.oup.com/bib/article/12/1/41/244593?login=false)
+
+
+
+**Methods that rely on annotation+ conservation:**
+- LIST: [Improved measures for evolutionary conservation that exploit taxonomy distances](https://www.nature.com/articles/s41467-019-09583-2)
+- PolyPhen-2 (https://doi.org/10.1002/0471142905.hg0720s76) (requires MSA!)
+- CADD (https://www.nature.com/articles/ng.2892)
+- Eigen (https://www.nature.com/articles/ng.3477)
+- DANN (https://doi.org/10.1093/bioinformatics/btu703)
+- fitCons (https://www.nature.com/articles/ng.3196)
